@@ -1,0 +1,127 @@
+<div class="container">
+    <h1 class="text-center" id="title">Burgers!!</h1>
+</div>
+<div class="content">
+    <div class="row" id="tables">
+        <div class="col-md-6">
+            <div class="container text-center listArea">
+                <h3 class="topper">Burgers to Devour!</h3>
+        
+                <ul class="list">
+                    {{#each burger}}
+                    {{#unless devoured}}
+        
+                    <ul>
+                        {{this.burger_name}}
+                        <button class="devouredbtn" id={{this.id}}>
+                            devoured
+                        </button>
+                    </ul>
+                    {{/unless}}        
+                    {{/each}}
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="container text-center listArea">
+                <h3 class="topper">Already Devoured</h3>
+
+                <ul class="list">
+                    {{#each burger}}
+                    {{#if devoured}}
+                    <ul>
+                        {{this.burger_name}}
+                    </ul>
+                    {{/if}}
+                    {{/each}}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row" id="formArea">
+        <div class="col-md-12">
+            <div class="container text-center">
+                <h2 class="topper">Add a Burger</h2>
+                <form class="create-form">
+
+                    <div class="form-group">
+                        <label for="ca">Burger Name:</label>
+                        <input type="text" id="ca" name="name" class="form-control">
+                    </div>
+                    <button type="submit">Add Burger</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $(function () {
+
+        $(".create-form").on("submit", function (event) {
+            // Make sure to preventDefault on a submit event.
+            event.preventDefault();
+
+             function validateForm() {
+                var isValid = true;
+                $(".form-control").each(function () {
+                    if ($(this).val() === "") {
+                        isValid = false;
+                    }
+                });
+
+                return isValid;
+            }
+
+            var newBurger = {
+                name: $("#ca").val().trim()
+            };
+
+            // Send the POST request.
+           if(validateForm()){
+            $.ajax("/api/burgers", {
+                type: "POST",
+                data: newBurger
+            }).then(
+                function () {
+                    console.log("created new burger");
+                    // Reload the page to get the updated list
+                    location.reload();
+                }
+            );
+           } else {
+               alert("Please enter a burger");
+           }
+        });
+
+        $(".devouredbtn").click(function () {
+            var id = $(this).attr("id");
+            console.log("button Pressed " + id);
+
+            var newDevoured = 1;
+
+            var newDevourState ={
+                devoured: newDevoured
+            };
+            
+            $.ajax("api/burgers/" + id, {
+                type: "PUT",
+                data: newDevourState
+            }).then(
+                      function () {
+                    console.log("Devoured Burger" + newDevourState);
+                    // Reload the page to get the updated list
+                    location.reload();
+                }
+            );
+        });
+
+
+    });
+
+</script>
